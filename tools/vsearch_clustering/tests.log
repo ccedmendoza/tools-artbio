@@ -1,0 +1,12 @@
+# Creation of 2 datasets for test
+ - dataset1 :1K of the first sequences bellow 10Kb length in vir2 query
+ - dataset2 :10K of the first sequences bellow 10Kb length in vir2 query
+
+# launched test in each dataset with command
+vsearch  --threads "${GALAXY_SLOTS:-4}" --notrunclabels   --cluster_smallmem "dataset" --maxrejects "32" --maxaccepts "1"   --id "0.95" --iddef "2"  --centroids "cedtroids.out" --blast6out "blast.out" --qmask "dust"   --strand "plus"
+
+ - dataset1 : Runtime = 1h16 - number of centroids = 410
+ - dataset2 : Runtime = 11h2 - number of centroids = 4 775
+
+# checked insidence in time on dataset1 of adding "--usersort" option to the command
+ => No insidence detected

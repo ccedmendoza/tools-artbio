@@ -1,0 +1,57 @@
+<tool id="vir2_test" name="Test clustering" version="0.1.0">
+    <requirements>
+        <requirement type="package" version="1.2">seqtk</requirement>
+        <requirement type="package" version="1.5.9">genometools-genometools</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #for $test in $tests
+            ## Sample crude vir2
+            mkdir split ;
+            seqtk sample -s 135884569 $crude_vir2 $sample_size > split/"${test.test_choice.test_name}_${sample_size}_sample.fasta" ;
+            #if ${test.test_choice.test_name} == "mutation":
+                gt seqmutate -rate ${test.test_choice.mut_rate} split/"${test.test_choice.test_name}_${sample_size}_sample.fasta" -o split/"${test.test_choice.test_name}_${sample_size}_mutated.fasta" ;
+            #else if ${test.test_choice.test_name} == "truncation":
+                python truncate.py split/"${test.test_choice.test_name}_${sample_size}_sample.fasta" ${test.test_choice.len_trunc} > split/"${test.test_choice.test_name}_${sample_size}_truncated.fasta" ;
+            #else if ${test.test_choice.test_name} == "mut_trunc":
+                python truncate.py split/"${test.test_choice.test_name}_${sample_size}_sample.fasta" ${test.test_choice.len_trunc} > split/"${test.test_choice.test_name}_${sample_size}_trunc.fasta" ;
+                gt seqmutate -rate ${test.test_choice.mut_rate} split/"${test.test_choice.test_name}_${sample_size}_trunc.fasta" -o split/"${test.test_choice.test_name}_${sample_size}_mutated_truncated.fasta" ;
+                rm split/"${test.test_choice.test_name}_${sample_size}_trunc.fasta";
+            #end if
+        #end for
+        ## Blast sample on vir2 centroids
+        
+        ## check remmap rate and accuracy (phylum, name, ...)
+    ]]></command>
+    <inputs>
+        <param name="crude_vir2" type="data" label="Crude Vir2" format="fasta"/>
+        <param name="clustered_vir2" type="data" label="Clustered Vir2" format="fasta"/>
+        <repeat name="tests" title="Tests to perform">
+            <conditional name="test_choice">
+                <param name="test_name" type="select" label="Type of test to perform">
+                    <option value="mutation">Mutation</option>
+                    <option value="trunc">Truncation</option>
+                    <option value="mut_trunc">Mutation and Truncation</option>
+                </param>
+                <when value="mutaion">
+                    <param name="mut_rate" label="Mutation rate" type="float"/>
+                </when>
+                <when value="truncation">
+                    <param name="len_trunc" label="Size of the truncation (in bases)" type="integer"/>
+                </when>
+                <when value="mut_trunc">
+                    <param name="mut_rate" label="Mutation rate" type="float"/>
+                    <param name="len_trunc" label="Size of the truncation (in bases)" type="integer"/>
+                </when>
+            </conditional>
+            <param type="float" label="Sample size (in percentage)" name="sample_size" value="0.2"/>
+        </repeat>
+    </inputs>
+    <outputs>
+        <data format="fasta" name="sample(s)">
+            <discover_datasets pattern="__designation_and_ext__" directory="split" visible="true"/>
+        </data>
+    </outputs>
+    <help><![CDATA[
+        TODO: Fill in help.
+    ]]></help>
+</tool>

@@ -1,0 +1,33 @@
+<tool id="create_list" name="Cluster datasets into a list" version="0.1.0">
+  <description></description>
+  <stdio>
+      <exit_code range="1:" level="fatal" description="Tool exception" />
+  </stdio>
+  <command detect_errors="exit_code"><![CDATA[
+       #for $input in $list_input#
+         #set $file_name = '_'.join($input.name.split(' '))#
+         cp $input $file_name;
+       #end for#
+       ls ;
+  ]]></command>
+  <inputs>
+      <param name="list_label" type="text" label="first file" help="first file" />
+      <param format="data" name="input_list" type="data" label="input List" multiple="true" help="Input" />
+  </inputs>
+  <outputs>
+    <collection name="output_list" type="list" label="${list_label}">
+        <discover_datasets pattern="*" directory="outputs"/>
+    </collection>
+  </outputs>
+  <tests>
+  </tests>
+  <help>
+
+.. class:: infomark
+
+**What it does**
+
+Just returns the Unix-style **diff** between two files !
+  </help>
+</tool>
+
